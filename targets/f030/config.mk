@@ -3,7 +3,7 @@ DEFINES += -DSTM32F030x6 -DPROTO_V2 -DPSCREEN
 CFLAGS += -mcpu=cortex-m0
 
 #OPENOCD ?= openocd -f interface/cmsis-dap.cfg -f target/stm32f0x.cfg
-OPENOCD ?= openocd -f interface/stlink-v2.cfg -f target/stm32f0x.cfg
+OPENOCD ?= openocd -f interface/stlink.cfg -f target/stm32f0x.cfg
 
 HALPREF = $(DRV)/Src
 HALSRC =  \

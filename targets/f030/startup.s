@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f030x8.s
+  * @file      startup_stm32f030x6.s
   * @author    MCD Application Team
-  * @brief     STM32F030x8 devices vector table for GCC toolchain.
+  * @brief     STM32F030x4/STM32F030x6 devices vector table for GCC toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -14,13 +14,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -51,39 +50,41 @@ defined in linker script */
 Reset_Handler:
   ldr   r0, =_estack
   mov   sp, r0          /* set stack pointer */
+  
+/* Call the clock system initialization function.*/
+  bl  SystemInit
 
 /* Copy the data segment initializers from flash to SRAM */
-  movs r1, #0
+  ldr r0, =_sdata
+  ldr r1, =_edata
+  ldr r2, =_sidata
+  movs r3, #0
   b LoopCopyDataInit
 
 CopyDataInit:
-  ldr r3, =_sidata
-  ldr r3, [r3, r1]
-  str r3, [r0, r1]
-  adds r1, r1, #4
+  ldr r4, [r2, r3]
+  str r4, [r0, r3]
+  adds r3, r3, #4
 
 LoopCopyDataInit:
-  ldr r0, =_sdata
-  ldr r3, =_edata
-  adds r2, r0, r1
-  cmp r2, r3
+  adds r4, r0, r3
+  cmp r4, r1
   bcc CopyDataInit
-  ldr r2, =_sbss
-  b LoopFillZerobss
+  
 /* Zero fill the bss segment. */
-FillZerobss:
+  ldr r2, =_sbss
+  ldr r4, =_ebss
   movs r3, #0
+  b LoopFillZerobss
+
+FillZerobss:
   str  r3, [r2]
   adds r2, r2, #4
 
-
 LoopFillZerobss:
-  ldr r3, = _ebss
-  cmp r2, r3
+  cmp r2, r4
   bcc FillZerobss
 
-/* Call the clock system intitialization function.*/
-  bl  SystemInit
 /* Call static constructors */
   bl __libc_init_array
 /* Call the application's entry point.*/
@@ -154,18 +155,18 @@ g_pfnVectors:
   .word  TIM1_CC_IRQHandler                /* TIM1 Capture Compare         */
   .word  0                                 /* Reserved                     */
   .word  TIM3_IRQHandler                   /* TIM3                         */
-  .word  TIM6_IRQHandler                   /* TIM6                         */
+  .word  0                                 /* Reserved                     */
   .word  0                                 /* Reserved                     */
   .word  TIM14_IRQHandler                  /* TIM14                        */
-  .word  TIM15_IRQHandler                  /* TIM15                        */
+  .word  0                                 /* Reserved                     */
   .word  TIM16_IRQHandler                  /* TIM16                        */
   .word  TIM17_IRQHandler                  /* TIM17                        */
   .word  I2C1_IRQHandler                   /* I2C1                         */
-  .word  I2C2_IRQHandler                   /* I2C2                         */
+  .word  0                                 /* Reserved                     */
   .word  SPI1_IRQHandler                   /* SPI1                         */
-  .word  SPI2_IRQHandler                   /* SPI2                         */
+  .word  0                                 /* Reserved                     */
   .word  USART1_IRQHandler                 /* USART1                       */
-  .word  USART2_IRQHandler                 /* USART2                       */
+  .word  0                                 /* Reserved                     */
   .word  0                                 /* Reserved                     */
   .word  0                                 /* Reserved                     */
   .word  0                                 /* Reserved                     */
@@ -235,14 +236,8 @@ g_pfnVectors:
   .weak      TIM3_IRQHandler
   .thumb_set TIM3_IRQHandler,Default_Handler
 
-  .weak      TIM6_IRQHandler
-  .thumb_set TIM6_IRQHandler,Default_Handler
-
   .weak      TIM14_IRQHandler
   .thumb_set TIM14_IRQHandler,Default_Handler
-
-  .weak      TIM15_IRQHandler
-  .thumb_set TIM15_IRQHandler,Default_Handler
 
   .weak      TIM16_IRQHandler
   .thumb_set TIM16_IRQHandler,Default_Handler
@@ -253,20 +248,11 @@ g_pfnVectors:
   .weak      I2C1_IRQHandler
   .thumb_set I2C1_IRQHandler,Default_Handler
 
-  .weak      I2C2_IRQHandler
-  .thumb_set I2C2_IRQHandler,Default_Handler
-
   .weak      SPI1_IRQHandler
   .thumb_set SPI1_IRQHandler,Default_Handler
-
-  .weak      SPI2_IRQHandler
-  .thumb_set SPI2_IRQHandler,Default_Handler
 
   .weak      USART1_IRQHandler
   .thumb_set USART1_IRQHandler,Default_Handler
 
-  .weak      USART2_IRQHandler
-  .thumb_set USART2_IRQHandler,Default_Handler
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

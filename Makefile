@@ -12,7 +12,7 @@ DEFINES = -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER
 WARNFLAGS = -Wall -Werror
 CFLAGS = $(DEFINES) $(USERDEFINES) \
 	-mthumb -mfloat-abi=soft  \
-	-Os -g3 -Wall -ffunction-sections -fdata-sections \
+	-O0 -g3 -Wall -ffunction-sections -fdata-sections \
 	$(WARNFLAGS)
 BUILT = built/$(TARGET)
 JD_DISPLAY_HEADER_PATH = jacdac-c/jacdac/dist/c
@@ -50,7 +50,7 @@ CPPFLAGS = \
 LDFLAGS = -specs=nosys.specs -specs=nano.specs \
 	-T"$(LD_SCRIPT)" -Wl,-Map=$(BUILT)/output.map -Wl,--gc-sections
 
-MAKE_FLAGS ?= -j8
+MAKE_FLAGS ?= -j1
 
 all:
 	$(MAKE) $(MAKE_FLAGS) $(BUILT)/binary.hex
