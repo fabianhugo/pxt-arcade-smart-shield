@@ -1,5 +1,5 @@
 # MakeCode Arcade smart shield firmware
-
+ 
 Firmware for shields with screen/buttons that enable MakeCode Arcade.
 The shield drives the screen (in particular it can bit-bang a 320x240 parallel
 connection screen).
