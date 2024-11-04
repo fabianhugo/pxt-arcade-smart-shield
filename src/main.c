@@ -65,7 +65,7 @@ int main(void) {
 
     jdspi_init();
 
-    // show_test_screen();
+    show_test_screen();
 
     uint64_t lastBlink = tim_get_micros();
     while (1) {
