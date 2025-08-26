@@ -49,20 +49,41 @@ static void tick() {
 void screen_stripes(void);
 
 void show_test_screen(void) {
+    DMESG("Starting first boot test screen");
     screen_set_backlight(255);
     
-    // Show test screen for 5 seconds
+    // Show test screen for 2 seconds
     uint64_t start_time = tim_get_micros();
-    uint64_t duration = 5000000; // 5 seconds in microseconds
+    uint64_t duration = 2000000; // 2 seconds in microseconds
+    uint64_t last_update = start_time;
     
     while (tim_get_micros() - start_time < duration) {
-        screen_stripes();
+        uint64_t current_time = tim_get_micros();
+        
+        // Update screen every 100ms to ensure it's visible
+        if (current_time - last_update > 100000) {
+            screen_stripes();
+            last_update = current_time;
+        }
+        
+        // Allow other processing during the display
+        // Small delay to prevent busy waiting
+        wait_us(1000);
     }
     
-    DMESG("Test screen displayed for first boot");
+    DMESG("Test screen completed after 5 seconds");
 }
 
 int main(void) {
+    // Set up backlight pin FIRST to prevent any flicker during boot
+#ifdef PROTO_V2
+    pin_setup_output(PB_0);  // PIN_DISPLAY_BL for PROTO_V2
+    pin_set(PB_0, 0);
+#else
+    pin_setup_output(PA_10); // PIN_DISPLAY_BL for non-PROTO_V2
+    pin_set(PA_10, 0);
+#endif
+    
     jdspi_early_init();
     led_init();
 
@@ -75,13 +96,21 @@ int main(void) {
     jdspi_init();
 
     // Check if this is the first boot and show test screen
-    if (is_first_boot()) {
-        DMESG("First boot detected - showing test screen");
+    bool first_boot = is_first_boot();
+    DMESG("First boot check result: %s", first_boot ? "TRUE (showing test screen)" : "FALSE (normal boot)");
+    
+    if (first_boot) {
         show_test_screen();
         mark_first_boot_complete();
-        DMESG("First boot complete flag set");
+        
+        // Verify the flag was set correctly
+        if (!is_first_boot()) {
+            DMESG("First boot process completed successfully");
+        } else {
+            DMESG("WARNING: First boot flag may not have been set correctly");
+        }
     } else {
-        DMESG("Not first boot - skipping test screen");
+        DMESG("Normal boot - skipping test screen");
         // Set a default backlight level for normal operation
         screen_set_backlight(128);
     }

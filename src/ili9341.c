@@ -126,8 +126,8 @@ static const uint8_t initCmds[] = {
     0x31, 0xC1, 0x48, 0x08, 0x0F, 0x0C, 0x31, 0x36, 0x0F,
   ILI9341_SLPOUT  , 0x80,                // Exit Sleep
     120,
-  ILI9341_DISPON  , 0x80,                // Display on
-    120,
+  // ILI9341_DISPON  , 0x80,                // Display on - REMOVED to prevent flicker
+  //   120,
   0x00, 0x00,                                // End of list
 };
 // clang-format on
@@ -238,8 +238,6 @@ void screen_init() {
     SET_CS(1);
     SET_DC(1);
 
-    pwm_init(255, 0);
-
     pin_set(CFG(PIN_DISPLAY_CS1), 0);
     pin_set(CFG(PIN_DISPLAY_RD), 1); // active-low
     pin_set(CFG(PIN_DISPLAY_WR), 1); // active-low
@@ -267,6 +265,14 @@ void screen_init() {
         cmdBuf[0] = ILI9341_INVON;
         sendCmd(cmdBuf, 1);
     }
+    
+    // Turn display ON only at the very end to prevent flicker
+    cmdBuf[0] = ILI9341_DISPON;
+    sendCmd(cmdBuf, 1);
+    wait_us(120000); // 120ms delay as per original init sequence
+    
+    // Initialize PWM AFTER everything else to prevent backlight flicker
+    pwm_init(255, 0);
 }
 
 /*
