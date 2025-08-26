@@ -3,6 +3,7 @@
 
 #include "jdsimple.h"
 #include "jdspi.h"
+#include "persistent.h"
 
 
 
@@ -48,9 +49,17 @@ static void tick() {
 void screen_stripes(void);
 
 void show_test_screen(void) {
-  screen_set_backlight(255);
-    screen_stripes();
-    while(1);
+    screen_set_backlight(255);
+    
+    // Show test screen for 5 seconds
+    uint64_t start_time = tim_get_micros();
+    uint64_t duration = 5000000; // 5 seconds in microseconds
+    
+    while (tim_get_micros() - start_time < duration) {
+        screen_stripes();
+    }
+    
+    DMESG("Test screen displayed for first boot");
 }
 
 int main(void) {
@@ -65,6 +74,17 @@ int main(void) {
 
     jdspi_init();
 
+    // Check if this is the first boot and show test screen
+    if (is_first_boot()) {
+        DMESG("First boot detected - showing test screen");
+        show_test_screen();
+        mark_first_boot_complete();
+        DMESG("First boot complete flag set");
+    } else {
+        DMESG("Not first boot - skipping test screen");
+        // Set a default backlight level for normal operation
+        screen_set_backlight(128);
+    }
     // show_test_screen();
 
     uint64_t lastBlink = tim_get_micros();

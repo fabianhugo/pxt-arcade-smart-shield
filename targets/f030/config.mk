@@ -24,4 +24,7 @@ $(HALPREF)/stm32f0xx_ll_tim.c \
 $(HALPREF)/stm32f0xx_ll_usart.c \
 $(HALPREF)/stm32f0xx_ll_usb.c \
 $(HALPREF)/stm32f0xx_ll_utils.c \
+$(HALPREF)/stm32f0xx_hal.c \
+$(HALPREF)/stm32f0xx_hal_flash.c \
+$(HALPREF)/stm32f0xx_hal_flash_ex.c \
 
