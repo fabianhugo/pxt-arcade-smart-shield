@@ -216,6 +216,7 @@ void screen_set_backlight(int level) {
 
 void screen_init() {
     pin_setup_output(CFG(PIN_DISPLAY_BL));
+    pin_set(CFG(PIN_DISPLAY_BL), 0);  // Turn off backlight FIRST
     pin_setup_output(CFG(PIN_DISPLAY_DC));
     pin_setup_output(CFG(PIN_DISPLAY_RST));
     pin_setup_output(CFG(PIN_DISPLAY_CS));
@@ -237,7 +238,6 @@ void screen_init() {
     SET_CS(1);
     SET_DC(1);
 
-    pin_set(CFG(PIN_DISPLAY_BL), 0);
     pwm_init(255, 0);
 
     pin_set(CFG(PIN_DISPLAY_CS1), 0);
