@@ -52,6 +52,9 @@ void show_test_screen(void) {
     DMESG("Starting first boot test screen");
     screen_set_backlight(255);
     
+    // Mark first boot complete immediately so power cycle stops test screen
+    mark_first_boot_complete();
+    
     // Show test screen for 2 seconds
     uint64_t start_time = tim_get_micros();
     uint64_t duration = 2000000; // 2 seconds in microseconds
@@ -71,7 +74,7 @@ void show_test_screen(void) {
         wait_us(1000);
     }
     
-    DMESG("Test screen completed after 5 seconds");
+    DMESG("Test screen completed after 2 seconds");
 }
 
 int main(void) {
@@ -101,7 +104,6 @@ int main(void) {
     
     if (first_boot) {
         show_test_screen();
-        mark_first_boot_complete();
         
         // Verify the flag was set correctly
         if (!is_first_boot()) {
