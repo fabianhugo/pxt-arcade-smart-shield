@@ -126,6 +126,7 @@ static const uint8_t initCmds[] = {
     0x31, 0xC1, 0x48, 0x08, 0x0F, 0x0C, 0x31, 0x36, 0x0F,
   ILI9341_SLPOUT  , 0x80,                // Exit Sleep
     120,
+  ILI9341_DISPOFF , 0,                   // Display OFF - keep disabled until init complete
   // ILI9341_DISPON  , 0x80,                // Display on - REMOVED to prevent flicker
   //   120,
   0x00, 0x00,                                // End of list
@@ -265,6 +266,9 @@ void screen_init() {
         cmdBuf[0] = ILI9341_INVON;
         sendCmd(cmdBuf, 1);
     }
+    
+    // Clear screen to black before turning display on
+    screen_clear();
     
     // Turn display ON only at the very end to prevent flicker
     cmdBuf[0] = ILI9341_DISPON;
@@ -419,6 +423,19 @@ void screen_stripes() {
         for (int j = 0; j < 10; ++j)
             screen_send_indexed(line, 64 / 4);
     }
+    SET_CS(0);
+}
+
+void screen_clear() {
+    // Reuse dataBuf which is already allocated (244*3 = 732 bytes)
+    // Clear in chunks to fill 320x240 screen with black (color 0)
+    screen_send_palette(palette);
+    startRAMWR(ILI9341_RAMWR);
+    memset(dataBuf, 0x00, sizeof(dataBuf));
+    // 320x240 = 76800 pixels, each pixel is 0.5 bytes (4 bits), so 38400 bytes total
+    // dataBuf is 732 bytes, so we need 38400/732 = ~53 iterations
+    for (int j = 0; j < 53; ++j)
+        screen_send_indexed((uint32_t *)dataBuf, sizeof(dataBuf) / 4);
     SET_CS(0);
 }
 

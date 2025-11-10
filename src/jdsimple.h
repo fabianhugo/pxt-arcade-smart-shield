@@ -90,6 +90,7 @@ extern cb_t spis_error_cb;
 // screen.c
 void screen_init();
 void screen_stripes();
+void screen_clear();
 void screen_send_indexed(const uint32_t *src, uint32_t numwords);
 void screen_send_palette(const uint32_t *palette);
 void screen_start_pixels(int x, int y, int w, int h);
