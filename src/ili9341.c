@@ -423,20 +423,18 @@ void screen_stripes() {
         for (int j = 0; j < 10; ++j)
             screen_send_indexed(line, 64 / 4);
     }
-    SET_CS(0);
+    SET_CS(1);
 }
 
 void screen_clear() {
-    // Reuse dataBuf which is already allocated (244*3 = 732 bytes)
-    // Clear in chunks to fill 320x240 screen with black (color 0)
+    static uint32_t line[64 / 4];
     screen_send_palette(palette);
     startRAMWR(ILI9341_RAMWR);
-    memset(dataBuf, 0x00, sizeof(dataBuf));
-    // 320x240 = 76800 pixels, each pixel is 0.5 bytes (4 bits), so 38400 bytes total
-    // dataBuf is 732 bytes, so we need 38400/732 = ~53 iterations
-    for (int j = 0; j < 53; ++j)
-        screen_send_indexed((uint32_t *)dataBuf, sizeof(dataBuf) / 4);
-    SET_CS(0);
+    memset(line, 0x000000, sizeof(line));
+    for (int i = 0; i < 160; ++i) {
+        screen_send_indexed(line, 64 / 4);
+    }
+    SET_CS(1);
 }
 
 #endif
