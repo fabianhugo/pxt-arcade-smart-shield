@@ -49,33 +49,11 @@ static void tick() {
 void screen_stripes(void);
 
 void show_test_screen(void) {
-    DMESG("Starting first boot test screen");
     screen_set_backlight(255);
-    
-    // Mark first boot complete immediately so power cycle stops test screen
-    mark_first_boot_complete();
-    
-    // Show test screen for 2 seconds
-    uint64_t start_time = tim_get_micros();
-    uint64_t duration = 2000000; // 2 seconds in microseconds
-    uint64_t last_update = start_time;
-    
-    while (tim_get_micros() - start_time < duration) {
-        uint64_t current_time = tim_get_micros();
-        
-        // Update screen every 100ms to ensure it's visible
-        if (current_time - last_update > 100000) {
-            screen_stripes();
-            last_update = current_time;
-        }
-        
-        // Allow other processing during the display
-        // Small delay to prevent busy waiting
-        wait_us(1000);
-    }
-    
-    DMESG("Test screen completed after 2 seconds");
-}
+    screen_stripes();
+    while(1);
+}    
+
 
 int main(void) {
     // Set up backlight pin FIRST to prevent any flicker during boot
@@ -103,14 +81,13 @@ int main(void) {
     DMESG("First boot check result: %s", first_boot ? "TRUE (showing test screen)" : "FALSE (normal boot)");
     
     if (first_boot) {
+        DMESG("Starting first boot test screen");
+        
+        // Mark first boot complete immediately so power cycle stops test screen
+        mark_first_boot_complete();
+    
         show_test_screen();
         
-        // Verify the flag was set correctly
-        if (!is_first_boot()) {
-            DMESG("First boot process completed successfully");
-        } else {
-            DMESG("WARNING: First boot flag may not have been set correctly");
-        }
     } else {
         DMESG("Normal boot - skipping test screen");
         // Set a default backlight level for normal operation
